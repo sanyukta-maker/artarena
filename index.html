@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArtArena – Join Art Contests. Get Recognized.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0a0f; --surface: #13131c; --surface2: #1a1a26;
+      --border: #1e1e2e; --accent: #ff5e3a; --accent2: #ffb347;
+      --text: #e8e6ff; --muted: #7876a0;
+      --badge-g: linear-gradient(135deg,#ff5e3a,#ff9a3a);
+      --card-glow: 0 0 30px rgba(255,94,58,.08);
+      --success: #4ade80; --info: #60a5fa; --danger: #f87171;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; min-height: 100vh; overflow-x: hidden; }
+    body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── HIDDEN ── */
+    .hidden { display: none !important; }
+
+    /* ── NAV ── */
+    nav { position:sticky; top:0; z-index:200; display:flex; align-items:center; justify-content:space-between; padding:0 5%; height:64px; background:rgba(10,10,15,.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+    .logo { font-family:'Bebas Neue',sans-serif; font-size:1.7rem; letter-spacing:2px; background:var(--badge-g); -webkit-background-clip:text; -webkit-text-fill-color:transparent; cursor:pointer; }
+    .nav-links { display:flex; gap:2rem; }
+    .nav-links a { color:var(--muted); text-decoration:none; font-weight:500; transition:color .2s; cursor:pointer; }
+    .nav-links a:hover { color:var(--text); }
+    .nav-right { display:flex; align-items:center; gap:.7rem; }
+    .notif-btn { position:relative; background:var(--surface); border:1px solid var(--border); border-radius:8px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; transition:border-color .2s; }
+    .notif-btn:hover { border-color:var(--accent); }
+    .notif-badge { position:absolute; top:-5px; right:-5px; background:var(--accent); color:#fff; font-size:.6rem; font-weight:700; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+    .btn { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1.2rem; border-radius:8px; font-weight:600; font-size:.875rem; cursor:pointer; text-decoration:none; transition:transform .15s, box-shadow .15s; border:none; }
+    .btn:active { transform:scale(.97); }
+    .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+    .btn-primary { background:var(--badge-g); color:#fff; box-shadow:0 4px 18px rgba(255,94,58,.35); }
+    .btn-primary:hover { box-shadow:0 6px 28px rgba(255,94,58,.55); transform:translateY(-1px); }
+    .btn-sm { padding:.35rem .8rem; font-size:.78rem; }
+    .btn-danger { background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; }
+    .btn-success { background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; }
+    .avatar { width:34px; height:34px; border-radius:50%; background:var(--badge-g); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:#fff; cursor:pointer; flex-shrink:0; }
+
+    /* ── OVERLAY / MODALS ── */
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:500; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; width:100%; max-width:440px; max-height:90vh; overflow-y:auto; position:relative; }
+    .modal-lg { max-width:700px; }
+    .modal-xl { max-width:900px; }
+    .modal h2 { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; letter-spacing:2px; margin-bottom:1.4rem; background:var(--badge-g); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .modal-close { position:absolute; top:1rem; right:1rem; background:var(--surface2); border:1px solid var(--border); border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--muted); font-size:1rem; transition:color .2s; }
+    .modal-close:hover { color:var(--text); }
+
+    /* ── FORMS ── */
+    .form-group { display:flex; flex-direction:column; gap:.5rem; margin-bottom:1rem; }
+    label { font-size:.82rem; color:var(--muted); font-weight:500; letter-spacing:.5px; text-transform:uppercase; }
+    input, textarea, select { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:.7rem 1rem; color:var(--text); font-family:inherit; font-size:.9rem; width:100%; transition:border-color .2s; outline:none; }
+    input:focus, textarea:focus, select:focus { border-color:var(--accent); }
+    textarea { resize:vertical; min-height:90px; }
+    select option { background:var(--surface); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-hint { font-size:.78rem; color:var(--muted); }
+    .error-msg { background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.3); border-radius:8px; padding:.6rem 1rem; font-size:.83rem; color:#f87171; margin-bottom:.8rem; }
+    .success-msg { background:rgba(74,222,128,.12); border:1px solid rgba(74,222,128,.3); border-radius:8px; padding:.6rem 1rem; font-size:.83rem; color:#4ade80; margin-bottom:.8rem; }
+
+    /* ── TABS ── */
+    .tabs { display:flex; gap:.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:.5rem; }
+    .tab { padding:.45rem 1rem; border-radius:8px 8px 0 0; font-size:.85rem; font-weight:600; cursor:pointer; color:var(--muted); transition:all .2s; background:transparent; border:none; }
+    .tab.active { background:var(--badge-g); color:#fff; }
+
+    /* ── HERO ── */
+    .hero { position:relative; z-index:1; padding:110px 5% 90px; display:flex; flex-direction:column; align-items:center; text-align:center; overflow:hidden; }
+    .hero-glow { position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:700px; height:500px; background:radial-gradient(ellipse at center, rgba(255,94,58,.18) 0%, transparent 70%); pointer-events:none; }
+    .hero-eyebrow { font-size:.78rem; letter-spacing:3px; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:1rem; }
+    .hero h1 { font-family:'DM Serif Display',serif; font-size:clamp(2.6rem,6vw,4.8rem); line-height:1.05; color:var(--text); max-width:780px; }
+    .hero h1 em { font-style:italic; color:var(--accent2); }
+    .hero p { margin-top:1.2rem; color:var(--muted); font-size:1.1rem; max-width:480px; line-height:1.7; }
+    .hero-cta { margin-top:2.4rem; display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+    .hero-stats { margin-top:3.5rem; display:flex; gap:3rem; flex-wrap:wrap; justify-content:center; }
+    .stat { display:flex; flex-direction:column; align-items:center; }
+    .stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; background:var(--badge-g); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .stat-label { font-size:.78rem; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+
+    /* ── SECTIONS ── */
+    section { position:relative; z-index:1; padding:70px 5%; }
+    .section-header { display:flex; align-items:center; gap:.75rem; margin-bottom:1.8rem; }
+    .section-header h2 { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:2px; }
+    .section-header .icon { font-size:1.5rem; }
+    .divider { height:1px; background:var(--border); margin:0 5%; }
+
+    /* ── CONTEST CARDS ── */
+    .contest-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:1rem; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.25rem 1.4rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; transition:border-color .2s, box-shadow .2s, transform .2s; animation:fadeUp .5s both; }
+    .card:hover { border-color:rgba(255,94,58,.4); box-shadow:var(--card-glow); transform:translateY(-3px); }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .card-left { display:flex; flex-direction:column; gap:.35rem; flex:1; }
+    .card-tag { font-size:.7rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--accent); font-weight:600; }
+    .card-title { font-weight:600; font-size:1rem; color:var(--text); }
+    .card-desc { font-size:.8rem; color:var(--muted); line-height:1.5; }
+    .card-meta { display:flex; gap:.8rem; flex-wrap:wrap; align-items:center; margin-top:.3rem; }
+    .card-time { font-size:.8rem; color:var(--muted); display:flex; align-items:center; gap:.3rem; }
+    .card-time.urgent { color:#ff5e5e; }
+    .time-dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; animation:pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .card-entries { font-size:.75rem; color:var(--muted); background:var(--surface2); padding:.2rem .5rem; border-radius:4px; }
+    .ending-card { background:linear-gradient(135deg,rgba(255,94,58,.12),rgba(255,94,58,.04)); border:1px solid rgba(255,94,58,.3); }
+    .card-actions { display:flex; gap:.5rem; flex-direction:column; align-items:flex-end; }
+
+    /* ── ART GRID ── */
+    .art-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
+    .art-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:transform .2s, border-color .2s; cursor:pointer; }
+    .art-card:hover { transform:translateY(-4px); border-color:rgba(255,94,58,.35); }
+    .art-img { width:100%; height:180px; object-fit:cover; display:block; background:var(--surface2); }
+    .art-img-placeholder { width:100%; height:180px; background:linear-gradient(135deg,var(--surface2),var(--border)); display:flex; align-items:center; justify-content:center; font-size:3rem; }
+    .art-info { padding:.9rem 1rem; }
+    .art-title { font-weight:600; font-size:.9rem; color:var(--text); margin-bottom:.25rem; }
+    .art-author { font-size:.78rem; color:var(--muted); }
+    .art-actions { display:flex; gap:.5rem; align-items:center; margin-top:.6rem; }
+    .like-btn { background:transparent; border:1px solid var(--border); border-radius:6px; padding:.3rem .6rem; color:var(--muted); font-size:.78rem; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:.3rem; }
+    .like-btn:hover, .like-btn.liked { border-color:var(--accent); color:var(--accent); }
+    .comment-btn { background:transparent; border:1px solid var(--border); border-radius:6px; padding:.3rem .6rem; color:var(--muted); font-size:.78rem; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:.3rem; }
+    .comment-btn:hover { border-color:var(--info); color:var(--info); }
+
+    /* ── WINNERS ── */
+    .winners-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1rem; }
+    .winner-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color .2s; }
+    .winner-card:hover { border-color:rgba(255,179,71,.35); }
+    .winner-art { width:100%; height:160px; object-fit:cover; background:var(--surface2); }
+    .winner-art-placeholder { width:100%; height:160px; background:linear-gradient(135deg,rgba(255,179,71,.2),rgba(255,94,58,.1)); display:flex; align-items:center; justify-content:center; font-size:3.5rem; }
+    .winner-body { padding:1rem 1.2rem; display:flex; align-items:center; gap:.8rem; }
+    .trophy-wrap { width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,#ffb347,#ff8c00); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+    .winner-info { display:flex; flex-direction:column; gap:.2rem; }
+    .winner-name { font-weight:600; color:var(--text); font-size:.95rem; }
+    .winner-cat { font-size:.78rem; color:var(--muted); }
+
+    /* ── WHY ── */
+    .why-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
+    .why-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.5rem; display:flex; flex-direction:column; gap:.6rem; transition:border-color .2s, transform .2s; }
+    .why-card:hover { border-color:rgba(255,94,58,.3); transform:translateY(-3px); }
+    .why-icon { font-size:1.8rem; }
+    .why-title { font-weight:600; font-size:.95rem; color:var(--text); }
+    .why-desc { font-size:.85rem; color:var(--muted); line-height:1.6; }
+
+    /* ── ABOUT SECTION ── */
+    .about-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; display:flex; gap:2rem; align-items:center; flex-wrap:wrap; }
+    .about-avatar { width:90px; height:90px; border-radius:50%; background:var(--badge-g); display:flex; align-items:center; justify-content:center; font-size:2.5rem; flex-shrink:0; }
+    .about-text h3 { font-family:'DM Serif Display',serif; font-size:1.5rem; color:var(--text); margin-bottom:.5rem; }
+    .about-text p { color:var(--muted); font-size:.9rem; line-height:1.7; }
+    .about-links { display:flex; gap:.7rem; margin-top:.8rem; flex-wrap:wrap; }
+    .about-link { display:flex; align-items:center; gap:.4rem; padding:.35rem .8rem; border-radius:8px; font-size:.82rem; font-weight:600; text-decoration:none; border:1px solid var(--border); color:var(--muted); transition:all .2s; }
+    .about-link:hover { border-color:var(--accent); color:var(--accent); }
+    .insta-link { background:linear-gradient(135deg,#e1306c,#833ab4); border-color:transparent !important; color:#fff !important; }
+    .insta-link:hover { transform:translateY(-2px); box-shadow:0 4px 15px rgba(225,48,108,.4); }
+
+    /* ── CHAT ── */
+    .chat-panel { position:fixed; bottom:20px; right:20px; z-index:300; }
+    .chat-fab { width:52px; height:52px; border-radius:50%; background:var(--badge-g); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.4rem; box-shadow:0 4px 20px rgba(255,94,58,.4); transition:transform .2s; }
+    .chat-fab:hover { transform:scale(1.08); }
+    .chat-box { position:absolute; bottom:65px; right:0; width:340px; background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:0 8px 40px rgba(0,0,0,.5); display:flex; flex-direction:column; height:460px; }
+    .chat-header { padding:.9rem 1.2rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:var(--surface2); }
+    .chat-header-title { font-weight:700; font-size:.92rem; color:var(--text); }
+    .chat-rooms { display:flex; gap:.4rem; padding:.7rem 1rem; border-bottom:1px solid var(--border); overflow-x:auto; flex-shrink:0; }
+    .chat-room-btn { white-space:nowrap; padding:.25rem .65rem; border-radius:6px; font-size:.75rem; font-weight:600; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--muted); transition:all .2s; }
+    .chat-room-btn.active { background:var(--badge-g); border-color:transparent; color:#fff; }
+    .chat-messages { flex:1; overflow-y:auto; padding:.8rem 1rem; display:flex; flex-direction:column; gap:.6rem; }
+    .chat-msg { display:flex; flex-direction:column; gap:.15rem; }
+    .chat-msg.me { align-items:flex-end; }
+    .chat-msg-author { font-size:.7rem; color:var(--muted); padding:0 .4rem; }
+    .chat-bubble { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:.5rem .8rem; font-size:.83rem; color:var(--text); max-width:220px; line-height:1.4; word-break:break-word; }
+    .chat-msg.me .chat-bubble { background:linear-gradient(135deg,rgba(255,94,58,.25),rgba(255,179,71,.15)); border-color:rgba(255,94,58,.3); }
+    .chat-input-row { display:flex; gap:.5rem; padding:.8rem; border-top:1px solid var(--border); flex-shrink:0; }
+    .chat-input { flex:1; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:.5rem .8rem; color:var(--text); font-family:inherit; font-size:.82rem; outline:none; }
+    .chat-input:focus { border-color:var(--accent); }
+    .chat-send { background:var(--badge-g); border:none; border-radius:8px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; font-size:1rem; transition:transform .15s; flex-shrink:0; }
+    .chat-send:hover { transform:scale(1.05); }
+
+    /* ── NOTIFICATIONS PANEL ── */
+    .notif-panel { position:absolute; top:52px; right:0; width:320px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,.5); z-index:300; overflow:hidden; }
+    .notif-panel-header { padding:.8rem 1rem; border-bottom:1px solid var(--border); font-weight:700; font-size:.85rem; color:var(--text); display:flex; justify-content:space-between; align-items:center; }
+    .notif-list { max-height:280px; overflow-y:auto; }
+    .notif-item { padding:.7rem 1rem; border-bottom:1px solid var(--border); display:flex; gap:.7rem; align-items:flex-start; transition:background .2s; cursor:pointer; }
+    .notif-item:hover { background:var(--surface2); }
+    .notif-icon { font-size:1.1rem; flex-shrink:0; margin-top:.1rem; }
+    .notif-text { font-size:.8rem; color:var(--text); line-height:1.4; }
+    .notif-time { font-size:.72rem; color:var(--muted); margin-top:.2rem; }
+    .notif-empty { padding:1.5rem; text-align:center; font-size:.83rem; color:var(--muted); }
+
+    /* ── PROFILE DROPDOWN ── */
+    .profile-menu { position:absolute; top:52px; right:0; width:200px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:0 8px 40px rgba(0,0,0,.5); overflow:hidden; z-index:300; }
+    .profile-menu-item { padding:.75rem 1rem; display:flex; align-items:center; gap:.6rem; font-size:.85rem; color:var(--text); cursor:pointer; transition:background .2s; }
+    .profile-menu-item:hover { background:var(--surface2); }
+    .profile-menu-item.danger { color:var(--danger); }
+    .profile-menu-divider { height:1px; background:var(--border); }
+
+    /* ── COMMENTS ── */
+    .comments-section { margin-top:1rem; }
+    .comment { display:flex; gap:.7rem; margin-bottom:.8rem; }
+    .comment-avatar { width:28px; height:28px; border-radius:50%; background:var(--badge-g); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; color:#fff; flex-shrink:0; }
+    .comment-body { background:var(--surface2); border-radius:8px; padding:.5rem .8rem; flex:1; }
+    .comment-author { font-size:.75rem; font-weight:600; color:var(--accent); }
+    .comment-text { font-size:.82rem; color:var(--text); line-height:1.4; margin-top:.15rem; }
+    .comment-input-row { display:flex; gap:.5rem; }
+
+    /* ── ART DETAIL ── */
+    .art-detail-img { width:100%; max-height:350px; object-fit:contain; border-radius:10px; background:var(--surface2); display:block; }
+    .art-detail-img-placeholder { width:100%; height:250px; background:var(--surface2); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:5rem; }
+
+    /* ── FOOTER ── */
+    footer { position:relative; z-index:1; background:var(--surface); border-top:1px solid var(--border); padding:2rem 5%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; }
+    .footer-logo { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:2px; background:var(--badge-g); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .footer-links { display:flex; gap:1.8rem; flex-wrap:wrap; }
+    .footer-links a { color:var(--muted); text-decoration:none; font-size:.85rem; transition:color .2s; cursor:pointer; }
+    .footer-links a:hover { color:var(--text); }
+    .footer-copy { font-size:.8rem; color:var(--muted); }
+    .footer-credit { font-size:.78rem; color:var(--muted); text-align:center; width:100%; border-top:1px solid var(--border); padding-top:1rem; margin-top:.5rem; }
+    .footer-credit a { color:var(--accent); text-decoration:none; }
+    .footer-credit a:hover { text-decoration:underline; }
+
+    /* ── BADGE ── */
+    .badge { display:inline-flex; align-items:center; padding:.2rem .55rem; border-radius:4px; font-size:.68rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+    .badge-accent { background:rgba(255,94,58,.15); color:var(--accent); border:1px solid rgba(255,94,58,.25); }
+    .badge-gold { background:rgba(255,179,71,.15); color:var(--accent2); border:1px solid rgba(255,179,71,.25); }
+    .badge-info { background:rgba(96,165,250,.15); color:var(--info); border:1px solid rgba(96,165,250,.25); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--muted); }
+    .empty-state .empty-icon { font-size:3rem; margin-bottom:.8rem; }
+    .empty-state p { font-size:.88rem; line-height:1.6; }
+
+    /* ── TOAST ── */
+    #toast-container { position:fixed; bottom:90px; left:50%; transform:translateX(-50%); z-index:999; display:flex; flex-direction:column; gap:.5rem; align-items:center; }
+    .toast { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:.7rem 1.3rem; font-size:.85rem; color:var(--text); box-shadow:0 4px 20px rgba(0,0,0,.4); animation:toastIn .3s ease; white-space:nowrap; }
+    .toast.success { border-color:rgba(74,222,128,.4); }
+    .toast.error { border-color:rgba(248,113,113,.4); }
+    @keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:600px) {
+      .nav-links { display:none; }
+      .hero { padding:70px 5% 60px; }
+      .hero-stats { gap:1.5rem; }
+      .chat-box { width:calc(100vw - 40px); }
+      .form-row { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <span class="logo" onclick="scrollToTop()">ArtArena</span>
+  <div class="nav-links">
+    <a onclick="scrollToSection('contests-section')">Contests</a>
+    <a onclick="scrollToSection('gallery-section')">Gallery</a>
+    <a onclick="scrollToSection('winners-section')">Winners</a>
+    <a onclick="scrollToSection('about-section')">About</a>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <!-- injected by JS -->
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <p class="hero-eyebrow">✦ The Creative Arena</p>
+  <h1>Join Art Contests.<br><em>Get Recognized.</em></h1>
+  <p>Showcase your artwork, compete with talented artists worldwide, and grow your creative career.</p>
+  <div class="hero-cta">
+    <button class="btn btn-primary" style="font-size:1rem;padding:.75rem 1.8rem" onclick="scrollToSection('contests-section')">View Contests</button>
+    <button class="btn btn-ghost" style="font-size:1rem;padding:.75rem 1.8rem" onclick="openCreateContest()">Create Contest</button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num" id="stat-artists">0</span><span class="stat-label">Artists</span></div>
+    <div class="stat"><span class="stat-num" id="stat-contests">0</span><span class="stat-label">Contests</span></div>
+    <div class="stat"><span class="stat-num" id="stat-artworks">0</span><span class="stat-label">Artworks</span></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ── ONGOING CONTESTS ── -->
+<section id="contests-section">
+  <div class="section-header">
+    <span class="icon">🔥</span>
+    <h2>Ongoing Contests</h2>
+    <button class="btn btn-ghost btn-sm" onclick="openCreateContest()" style="margin-left:auto">+ Create Contest</button>
+  </div>
+  <div class="contest-grid" id="ongoing-grid">
+    <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎨</div><p>No contests yet.<br>Be the first to create one!</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── ENDING SOON ── -->
+<section>
+  <div class="section-header"><span class="icon">⏳</span><h2>Ending Soon</h2></div>
+  <div class="contest-grid" id="ending-grid">
+    <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⏳</div><p>No contests ending soon.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── GALLERY ── -->
+<section id="gallery-section">
+  <div class="section-header">
+    <span class="icon">🖼️</span>
+    <h2>Community Gallery</h2>
+    <button class="btn btn-ghost btn-sm" onclick="openPostArt()" style="margin-left:auto">+ Post Art</button>
+  </div>
+  <div class="art-grid" id="gallery-grid">
+    <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🖼️</div><p>No artwork posted yet.<br>Share your creation!</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── WINNERS ── -->
+<section id="winners-section">
+  <div class="section-header"><span class="icon">🏆</span><h2>Recent Winners</h2></div>
+  <div class="winners-grid" id="winners-grid">
+    <div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏆</div><p>Contest winners will appear here.<br>Compete to win your spot!</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── WHY ── -->
+<section>
+  <div class="section-header"><span class="icon">✨</span><h2>Why Use ArtArena?</h2></div>
+  <div class="why-grid">
+    <div class="why-card"><span class="why-icon">🎨</span><span class="why-title">Discover Contests Easily</span><span class="why-desc">Browse curated art challenges across every style and medium, all in one place.</span></div>
+    <div class="why-card"><span class="why-icon">🌍</span><span class="why-title">Get More Visibility</span><span class="why-desc">Your work gets seen by a growing community of artists, collectors, and judges.</span></div>
+    <div class="why-card"><span class="why-icon">📈</span><span class="why-title">Compete & Improve</span><span class="why-desc">Push your creative limits, get feedback, and level up your skills with every entry.</span></div>
+    <div class="why-card"><span class="why-icon">🏅</span><span class="why-title">Win Recognition</span><span class="why-desc">Top artists earn badges, features, and prizes that build their creative reputation.</span></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── ABOUT ── -->
+<section id="about-section">
+  <div class="section-header"><span class="icon">👩‍🎨</span><h2>About ArtArena</h2></div>
+  <div class="about-card">
+    <div class="about-avatar">🎨</div>
+    <div class="about-text">
+      <h3>Created by Sanyukta Pukale</h3>
+      <p>ArtArena is a platform born from a passion for creativity and community. Designed and built by <strong>Sanyukta Pukale</strong> — artist, entrepreneur, and creative visionary — this space is dedicated to artists who deserve to be seen and celebrated.</p>
+      <div class="about-links">
+        <a href="https://instagram.com/itz_little_miss_" target="_blank" class="about-link insta-link">📸 @itz_little_miss_</a>
+        <span class="about-link">🌐 Website Designer: Sanyukta Pukale</span>
+        <span class="about-link">🤖 Powered by Claude AI</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <span class="footer-logo">ArtArena</span>
+  <div class="footer-links">
+    <a onclick="scrollToSection('about-section')">About</a>
+    <a onclick="openModal('contact-modal')">Contact</a>
+    <a>Privacy</a>
+    <a>Terms</a>
+  </div>
+  <span class="footer-copy">© 2026 ArtArena. All rights reserved.</span>
+  <div class="footer-credit">
+    Designed & Created by <a href="https://instagram.com/itz_little_miss_" target="_blank">Sanyukta Pukale</a> 
+  </div>
+</footer>
+
+<!-- ── CHAT ── -->
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-box hidden" id="chat-box">
+    <div class="chat-header">
+      <span class="chat-header-title">💬 Community Chat</span>
+      <button onclick="toggleChat()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem">✕</button>
+    </div>
+    <div class="chat-rooms" id="chat-rooms"></div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+  <div class="chat-fab" onclick="toggleChat()" title="Community Chat">💬</div>
+</div>
+
+<!-- ──────────── MODALS ──────────── -->
+
+<!-- AUTH MODAL -->
+<div class="overlay hidden" id="auth-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('auth-overlay')">✕</button>
+    <div class="tabs">
+      <button class="tab active" onclick="switchAuthTab('login')">Login</button>
+      <button class="tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <div id="auth-error" class="error-msg hidden"></div>
+
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="form-group"><label>Email</label><input id="login-email" type="email" placeholder="your@email.com"/></div>
+      <div class="form-group"><label>Password</label><input id="login-pass" type="password" placeholder="••••••••"/></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem" onclick="doLogin()">Login</button>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signup-form" class="hidden">
+      <div class="form-group"><label>Username</label><input id="su-username" placeholder="@yourname"/></div>
+      <div class="form-group"><label>Email</label><input id="su-email" type="email" placeholder="your@email.com"/></div>
+      <div class="form-group"><label>Password</label><input id="su-pass" type="password" placeholder="min 6 chars"/></div>
+      <div class="form-group"><label>Confirm Password</label><input id="su-pass2" type="password" placeholder="repeat password"/></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem;margin-top:.3rem" onclick="doSignup()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE CONTEST MODAL -->
+<div class="overlay hidden" id="create-contest-overlay">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeModal('create-contest-overlay')">✕</button>
+    <h2>Create Contest</h2>
+    <div id="cc-error" class="error-msg hidden"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Contest Title</label><input id="cc-title" placeholder="e.g. Dark Fantasy Art"/></div>
+      <div class="form-group"><label>Category / Tag</label><input id="cc-tag" placeholder="e.g. Illustration, Anime…"/></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="cc-desc" placeholder="Describe the theme, rules, and judging criteria…"></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Prize / Reward</label><input id="cc-prize" placeholder="e.g. Feature + Badge"/></div>
+      <div class="form-group"><label>Deadline (days from now)</label><input id="cc-days" type="number" min="1" max="365" value="7"/></div>
+    </div>
+    <div class="form-group"><label>Contest Banner / Template (optional URL)</label><input id="cc-banner" placeholder="https://…"/></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem;margin-top:.5rem" onclick="doCreateContest()">🚀 Launch Contest</button>
+  </div>
+</div>
+
+<!-- POST ART MODAL -->
+<div class="overlay hidden" id="post-art-overlay">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeModal('post-art-overlay')">✕</button>
+    <h2>Post Your Art</h2>
+    <div id="pa-error" class="error-msg hidden"></div>
+    <div class="form-group"><label>Title</label><input id="pa-title" placeholder="Name your artwork"/></div>
+    <div class="form-group"><label>Image URL</label><input id="pa-img" placeholder="https://… (paste a direct image link)"/></div>
+    <div class="form-group"><label>Description</label><textarea id="pa-desc" placeholder="Tell us about this piece…"></textarea></div>
+    <div class="form-group">
+      <label>Submit to Contest (optional)</label>
+      <select id="pa-contest"><option value="">— None —</option></select>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:.75rem;margin-top:.5rem" onclick="doPostArt()">🖼️ Post Artwork</button>
+  </div>
+</div>
+
+<!-- ART DETAIL MODAL -->
+<div class="overlay hidden" id="art-detail-overlay">
+  <div class="modal modal-xl">
+    <button class="modal-close" onclick="closeModal('art-detail-overlay')">✕</button>
+    <div id="art-detail-content"></div>
+  </div>
+</div>
+
+<!-- CONTEST DETAIL MODAL -->
+<div class="overlay hidden" id="contest-detail-overlay">
+  <div class="modal modal-lg">
+    <button class="modal-close" onclick="closeModal('contest-detail-overlay')">✕</button>
+    <div id="contest-detail-content"></div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="overlay hidden" id="profile-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('profile-modal-overlay')">✕</button>
+    <h2>My Profile</h2>
+    <div id="profile-content"></div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="overlay hidden" id="contact-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('contact-modal')">✕</button>
+    <h2>Contact</h2>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.7;margin-bottom:1rem">Have questions or feedback? Reach out to the creator of ArtArena:</p>
+    <div style="display:flex;flex-direction:column;gap:.8rem">
+      <a href="https://instagram.com/itz_little_miss_" target="_blank" class="about-link insta-link" style="display:flex;align-items:center;gap:.5rem;text-decoration:none;border-radius:8px;padding:.7rem 1rem">📸 Instagram: @itz_little_miss_</a>
+    </div>
+    <p style="color:var(--muted);font-size:.8rem;margin-top:1.2rem;text-align:center">Created by Sanyukta Pukale .</p>
+  </div>
+</div>
+
+<!-- ── NOTIFICATION PANEL (inline) ── -->
+<div class="notif-panel hidden" id="notif-panel" style="position:fixed;top:68px;right:20px;z-index:400">
+  <div class="notif-panel-header">
+    <span>🔔 Notifications</span>
+    <button onclick="clearNotifs()" style="background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer">Clear all</button>
+  </div>
+  <div class="notif-list" id="notif-list"></div>
+</div>
+
+<!-- ── PROFILE DROPDOWN ── -->
+<div class="profile-menu hidden" id="profile-dropdown" style="position:fixed;top:68px;right:20px;z-index:400">
+  <div class="profile-menu-item" onclick="openProfileModal()">👤 My Profile</div>
+  <div class="profile-menu-item" onclick="openPostArt()">🖼️ Post Artwork</div>
+  <div class="profile-menu-item" onclick="openCreateContest()">🏆 Create Contest</div>
+  <div class="profile-menu-divider"></div>
+  <div class="profile-menu-item danger" onclick="doLogout()">🚪 Logout</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+//  DATA STORE (localStorage)
+// ═══════════════════════════════════════
+const DB = {
+  get: k => { try { return JSON.parse(localStorage.getItem('aa_'+k) || 'null'); } catch { return null; } },
+  set: (k,v) => localStorage.setItem('aa_'+k, JSON.stringify(v)),
+  push: (k,v) => { const a = DB.get(k) || []; a.push(v); DB.set(k,a); return a; }
+};
+
+let currentUser = DB.get('session');
+
+// Default seed data
+if (!DB.get('contests')) {
+  DB.set('contests', [
+    { id: 'c1', title: 'Dark Fantasy', tag: 'Illustration', desc: 'Create a dark fantasy scene — creatures, magic, or mysterious worlds.', prize: 'Feature + Gold Badge', daysLeft: 3, createdAt: Date.now(), creator: 'ArtArena', entries: [], winner: null, banner: '' },
+    { id: 'c2', title: 'Anime Sketch', tag: 'Anime', desc: 'Sketch your favourite anime character or create an original one.', prize: 'Community Feature', daysLeft: 5, createdAt: Date.now(), creator: 'ArtArena', entries: [], winner: null, banner: '' },
+    { id: 'c3', title: 'Nature Theme', tag: 'Photography', desc: 'Capture the beauty of nature — landscapes, flora, or wildlife.', prize: 'Winner Spotlight', daysLeft: 2, createdAt: Date.now(), creator: 'ArtArena', entries: [], winner: null, banner: '' },
+  ]);
+}
+if (!DB.get('artworks')) DB.set('artworks', []);
+if (!DB.get('users')) DB.set('users', []);
+if (!DB.get('chat_messages')) DB.set('chat_messages', {});
+if (!DB.get('notifications')) DB.set('notifications', []);
+
+// ═══════════════════════════════════════
+//  UTILITY
+// ═══════════════════════════════════════
+const $ = id => document.getElementById(id);
+function uid() { return Math.random().toString(36).slice(2,9); }
+function timeAgo(ts) {
+  const s = Math.floor((Date.now()-ts)/1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return Math.floor(s/60)+'m ago';
+  if (s < 86400) return Math.floor(s/3600)+'h ago';
+  return Math.floor(s/86400)+'d ago';
+}
+function toast(msg, type='') {
+  const el = document.createElement('div');
+  el.className = 'toast'+(type?' '+type:'');
+  el.textContent = msg;
+  $('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+function openModal(id) { $(id).classList.remove('hidden'); }
+function closeModal(id) { $(id).classList.add('hidden'); }
+function scrollToTop() { window.scrollTo({top:0,behavior:'smooth'}); }
+function scrollToSection(id) { $(id)?.scrollIntoView({behavior:'smooth'}); }
+function avatarLetter(name) { return (name||'?')[0].toUpperCase(); }
+
+// ═══════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════
+function updateStats() {
+  const users = DB.get('users') || [];
+  const contests = DB.get('contests') || [];
+  const artworks = DB.get('artworks') || [];
+  animateNumber('stat-artists', users.length + 1200);
+  animateNumber('stat-contests', contests.length + 340);
+  animateNumber('stat-artworks', artworks.length + 86000);
+}
+function animateNumber(id, target) {
+  const el = $(id); let cur = 0;
+  const step = Math.max(1, Math.floor(target/60));
+  const t = setInterval(() => { cur = Math.min(cur+step, target); el.textContent = cur >= 1000 ? (cur/1000).toFixed(1)+'K+' : cur+'+'; if(cur>=target)clearInterval(t); }, 20);
+}
+
+// ═══════════════════════════════════════
+//  NAV RENDER
+// ═══════════════════════════════════════
+function renderNav() {
+  const nr = $('nav-right');
+  if (currentUser) {
+    nr.innerHTML = `
+      <div style="position:relative">
+        <div class="notif-btn" id="notif-btn" onclick="toggleNotifPanel()">🔔<span class="notif-badge hidden" id="notif-count">0</span></div>
+      </div>
+      <div style="position:relative">
+        <div class="avatar" id="avatar-btn" onclick="toggleProfileMenu()">${avatarLetter(currentUser.username)}</div>
+      </div>`;
+    updateNotifBadge();
+  } else {
+    nr.innerHTML = `
+      <button class="btn btn-ghost" onclick="openAuth('login')">Login</button>
+      <button class="btn btn-primary" onclick="openAuth('signup')">Sign Up</button>`;
+  }
+}
+
+// ═══════════════════════════════════════
+//  AUTH
+// ═══════════════════════════════════════
+function openAuth(tab='login') {
+  openModal('auth-overlay');
+  switchAuthTab(tab);
+  $('auth-error').classList.add('hidden');
+}
+function switchAuthTab(tab) {
+  $('login-form').classList.toggle('hidden', tab!=='login');
+  $('signup-form').classList.toggle('hidden', tab!=='signup');
+  document.querySelectorAll('#auth-overlay .tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
+}
+function showAuthError(msg) { const e=$('auth-error'); e.textContent=msg; e.classList.remove('hidden'); }
+
+function doLogin() {
+  const email = $('login-email').value.trim();
+  const pass = $('login-pass').value;
+  const users = DB.get('users') || [];
+  const user = users.find(u => u.email===email && u.pass===pass);
+  if (!user) { showAuthError('Invalid email or password.'); return; }
+  currentUser = user;
+  DB.set('session', user);
+  closeModal('auth-overlay');
+  renderNav(); renderAll();
+  toast('Welcome back, @'+user.username+'! 🎨', 'success');
+  addNotif('👋 Welcome back, @'+user.username+'!');
+}
+
+function doSignup() {
+  const username = $('su-username').value.trim().replace('@','');
+  const email = $('su-email').value.trim();
+  const pass = $('su-pass').value;
+  const pass2 = $('su-pass2').value;
+  if (!username || !email || !pass) { showAuthError('All fields required.'); return; }
+  if (pass.length < 6) { showAuthError('Password must be at least 6 chars.'); return; }
+  if (pass !== pass2) { showAuthError('Passwords do not match.'); return; }
+  const users = DB.get('users') || [];
+  if (users.find(u => u.email===email)) { showAuthError('Email already registered.'); return; }
+  if (users.find(u => u.username===username)) { showAuthError('Username already taken.'); return; }
+  const user = { id:uid(), username, email, pass, joinedAt:Date.now() };
+  users.push(user); DB.set('users', users);
+  currentUser = user; DB.set('session', user);
+  closeModal('auth-overlay');
+  renderNav(); renderAll();
+  toast('Welcome to ArtArena, @'+username+'! 🎉', 'success');
+  addNotif('🎉 Your account @'+username+' was created! Start competing!');
+}
+
+function doLogout() {
+  currentUser = null; DB.set('session', null);
+  $('profile-dropdown').classList.add('hidden');
+  renderNav(); renderAll();
+  toast('Logged out. See you soon! 👋');
+}
+
+// ═══════════════════════════════════════
+//  PROFILE MENU / DROPDOWN
+// ═══════════════════════════════════════
+function toggleProfileMenu() {
+  const d = $('profile-dropdown'); d.classList.toggle('hidden');
+  $('notif-panel').classList.add('hidden');
+  positionDropdown('profile-dropdown', 'avatar-btn');
+}
+function positionDropdown(panelId, btnId) {
+  // keep it inside viewport
+}
+function openProfileModal() {
+  $('profile-dropdown').classList.add('hidden');
+  const artworks = (DB.get('artworks')||[]).filter(a=>a.authorId===currentUser?.id);
+  const contests = (DB.get('contests')||[]).filter(c=>c.creator===currentUser?.username);
+  $('profile-content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+      <div class="avatar" style="width:64px;height:64px;font-size:1.8rem">${avatarLetter(currentUser.username)}</div>
+      <div>
+        <div style="font-weight:700;font-size:1.1rem;color:var(--text)">@${currentUser.username}</div>
+        <div style="font-size:.82rem;color:var(--muted)">${currentUser.email}</div>
+        <div style="font-size:.78rem;color:var(--muted)">Joined ${timeAgo(currentUser.joinedAt)}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:1.5rem;margin-bottom:1.5rem">
+      <div class="stat"><span class="stat-num" style="font-size:1.6rem">${artworks.length}</span><span class="stat-label">Artworks</span></div>
+      <div class="stat"><span class="stat-num" style="font-size:1.6rem">${contests.length}</span><span class="stat-label">Contests</span></div>
+    </div>
+    <div style="display:flex;gap:.7rem">
+      <button class="btn btn-primary btn-sm" onclick="openPostArt();closeModal('profile-modal-overlay')">🖼️ Post Art</button>
+      <button class="btn btn-ghost btn-sm" onclick="openCreateContest();closeModal('profile-modal-overlay')">🏆 Create Contest</button>
+    </div>`;
+  openModal('profile-modal-overlay');
+}
+
+// ═══════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════
+function addNotif(msg) {
+  if (!currentUser) return;
+  const n = DB.get('notifications') || [];
+  n.unshift({ id:uid(), msg, ts:Date.now(), userId:currentUser.id, read:false });
+  DB.set('notifications', n);
+  updateNotifBadge();
+}
+function updateNotifBadge() {
+  const n = (DB.get('notifications')||[]).filter(x=>x.userId===currentUser?.id&&!x.read);
+  const badge = $('notif-count');
+  if (!badge) return;
+  badge.textContent = n.length;
+  badge.classList.toggle('hidden', n.length===0);
+}
+function toggleNotifPanel() {
+  const p = $('notif-panel'); p.classList.toggle('hidden');
+  $('profile-dropdown').classList.add('hidden');
+  if (!p.classList.contains('hidden')) renderNotifPanel();
+}
+function renderNotifPanel() {
+  const notifs = (DB.get('notifications')||[]).filter(x=>x.userId===currentUser?.id);
+  const list = $('notif-list');
+  if (!notifs.length) { list.innerHTML='<div class="notif-empty">No notifications yet</div>'; return; }
+  list.innerHTML = notifs.map(n=>`
+    <div class="notif-item">
+      <span class="notif-icon">🔔</span>
+      <div><div class="notif-text">${n.msg}</div><div class="notif-time">${timeAgo(n.ts)}</div></div>
+    </div>`).join('');
+  // mark all read
+  const all = DB.get('notifications')||[];
+  all.forEach(x=>{ if(x.userId===currentUser?.id) x.read=true; });
+  DB.set('notifications', all); updateNotifBadge();
+}
+function clearNotifs() {
+  let all = DB.get('notifications')||[];
+  all = all.filter(x=>x.userId!==currentUser?.id);
+  DB.set('notifications', all);
+  $('notif-panel').classList.add('hidden'); updateNotifBadge();
+}
+
+// ═══════════════════════════════════════
+//  CONTESTS
+// ═══════════════════════════════════════
+function openCreateContest() {
+  if (!currentUser) { openAuth('login'); return; }
+  closeDropdowns();
+  openModal('create-contest-overlay');
+}
+function doCreateContest() {
+  const title = $('cc-title').value.trim();
+  const tag = $('cc-tag').value.trim();
+  const desc = $('cc-desc').value.trim();
+  const prize = $('cc-prize').value.trim();
+  const days = parseInt($('cc-days').value)||7;
+  const banner = $('cc-banner').value.trim();
+  if (!title||!tag||!desc) { const e=$('cc-error'); e.textContent='Title, category, and description required.'; e.classList.remove('hidden'); return; }
+  const contest = { id:uid(), title, tag, desc, prize:prize||'Community Feature', daysLeft:days, createdAt:Date.now(), creator:currentUser.username, entries:[], winner:null, banner };
+  const contests = DB.get('contests')||[]; contests.push(contest); DB.set('contests', contests);
+  closeModal('create-contest-overlay');
+  ['cc-title','cc-tag','cc-desc','cc-prize','cc-banner'].forEach(id=>$(id).value=''); $('cc-days').value='7';
+  $('cc-error').classList.add('hidden');
+  renderContests(); updateStats();
+  toast('🏆 Contest "'+title+'" launched!', 'success');
+  addNotif('🏆 Your contest "'+title+'" is live!');
+}
+
+function renderContests() {
+  const contests = DB.get('contests')||[];
+  const ongoing = contests.filter(c=>c.daysLeft>1&&!c.winner);
+  const ending = contests.filter(c=>c.daysLeft<=1&&!c.winner);
+
+  $('ongoing-grid').innerHTML = ongoing.length ? ongoing.map(c=>contestCardHTML(c)).join('') :
+    '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎨</div><p>No contests yet.<br>Be the first to create one!</p></div>';
+
+  $('ending-grid').innerHTML = ending.length ? ending.map(c=>contestCardHTML(c,true)).join('') :
+    '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⏳</div><p>No contests ending soon.</p></div>';
+}
+function contestCardHTML(c, urgent=false) {
+  const entries = (c.entries||[]).length;
+  return `<div class="card${urgent?' ending-card':''}">
+    <div class="card-left">
+      <span class="card-tag" style="${urgent?'color:#ff5e5e':''}">${c.tag}</span>
+      <span class="card-title">${c.title}</span>
+      <span class="card-desc" style="display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden">${c.desc}</span>
+      <div class="card-meta">
+        <span class="card-time${urgent?' urgent':''}"><span class="time-dot"></span> ${c.daysLeft<=0?'Ending today!':c.daysLeft+' day'+(c.daysLeft===1?'':'s')+' left'}</span>
+        <span class="card-entries">📌 ${entries} entr${entries===1?'y':'ies'}</span>
+        <span class="card-entries">👤 ${c.creator}</span>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-primary btn-sm" onclick="openContestDetail('${c.id}')">View</button>
+      <button class="btn btn-ghost btn-sm" onclick="joinContest('${c.id}')">Join</button>
+    </div>
+  </div>`;
+}
+
+function openContestDetail(id) {
+  const contests = DB.get('contests')||[];
+  const c = contests.find(x=>x.id===id); if(!c) return;
+  const entries = (c.entries||[]);
+  const joined = currentUser && entries.includes(currentUser.id);
+  const artworks = (DB.get('artworks')||[]).filter(a=>a.contestId===id);
+  $('contest-detail-content').innerHTML = `
+    ${c.banner?`<img src="${c.banner}" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:1rem;display:block" onerror="this.style.display='none'" />` : ''}
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div>
+        <span class="badge badge-accent" style="margin-bottom:.5rem">${c.tag}</span>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--text);margin-bottom:.3rem">${c.title}</h2>
+        <p style="color:var(--muted);font-size:.85rem">By @${c.creator} · ${entries.length} entries · ${c.daysLeft} days left</p>
+      </div>
+      <button class="btn btn-primary" onclick="joinContest('${c.id}')">${joined?'✓ Joined':'+ Join Contest'}</button>
+    </div>
+    <p style="color:var(--text);font-size:.9rem;line-height:1.7;margin-bottom:1rem">${c.desc}</p>
+    ${c.prize?`<div style="background:rgba(255,179,71,.1);border:1px solid rgba(255,179,71,.25);border-radius:8px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.85rem;color:var(--accent2)">🏅 Prize: ${c.prize}</div>`:''}
+    ${c.winner?`<div style="background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);border-radius:8px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.85rem;color:var(--success)">🏆 Winner: @${c.winner}</div>`:''}
+    <h3 style="font-family:'Bebas Neue',sans-serif;letter-spacing:1px;margin-bottom:.8rem;font-size:1.1rem">🖼️ Submissions (${artworks.length})</h3>
+    ${artworks.length ? `<div class="art-grid">${artworks.map(a=>miniArtCard(a)).join('')}</div>` : '<div class="empty-state"><div class="empty-icon">🎨</div><p>No submissions yet. Be the first!</p></div>'}
+    ${currentUser&&currentUser.username===c.creator&&!c.winner&&artworks.length?`<div style="margin-top:1rem"><label style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Declare Winner (username)</label><div style="display:flex;gap:.5rem;margin-top:.4rem"><input id="winner-input-${c.id}" placeholder="@username" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem;color:var(--text);font-family:inherit;outline:none;flex:1"/><button class="btn btn-success btn-sm" onclick="declareWinner('${c.id}')">🏆 Declare</button></div></div>`:''}`;
+  openModal('contest-detail-overlay');
+}
+
+function miniArtCard(a) {
+  return `<div class="art-card" onclick="openArtDetail('${a.id}')">
+    ${a.img ? `<img class="art-img" src="${a.img}" alt="${a.title}" onerror="this.style.display='none'"/>` : `<div class="art-img-placeholder">🎨</div>`}
+    <div class="art-info"><div class="art-title">${a.title}</div><div class="art-author">@${a.author}</div></div>
+  </div>`;
+}
+
+function joinContest(id) {
+  if (!currentUser) { openAuth('login'); return; }
+  const contests = DB.get('contests')||[];
+  const c = contests.find(x=>x.id===id); if(!c) return;
+  if (!c.entries) c.entries=[];
+  if (c.entries.includes(currentUser.id)) { toast('You already joined this contest!'); return; }
+  c.entries.push(currentUser.id);
+  DB.set('contests', contests);
+  renderContests(); openContestDetail(id);
+  toast('✅ Joined "'+c.title+'"!', 'success');
+  addNotif('✅ You joined the contest: "'+c.title+'"');
+}
+
+function declareWinner(id) {
+  const w = $('winner-input-'+id)?.value?.trim()?.replace('@','');
+  if (!w) { toast('Enter a username first.'); return; }
+  const contests = DB.get('contests')||[];
+  const c = contests.find(x=>x.id===id); if(!c) return;
+  c.winner = w; DB.set('contests', contests);
+  renderContests(); renderWinners(); closeModal('contest-detail-overlay');
+  toast('🏆 @'+w+' declared winner of "'+c.title+'"!', 'success');
+  addNotif('🏆 @'+w+' won the "'+c.title+'" contest!');
+}
+
+// ═══════════════════════════════════════
+//  ARTWORKS / GALLERY
+// ═══════════════════════════════════════
+function openPostArt() {
+  if (!currentUser) { openAuth('login'); return; }
+  closeDropdowns();
+  // populate contest dropdown
+  const contests = (DB.get('contests')||[]).filter(c=>!c.winner);
+  const sel = $('pa-contest');
+  sel.innerHTML = '<option value="">— None (Gallery only) —</option>' +
+    contests.map(c=>`<option value="${c.id}">${c.title} (${c.tag})</option>`).join('');
+  openModal('post-art-overlay');
+}
+function doPostArt() {
+  const title = $('pa-title').value.trim();
+  const img = $('pa-img').value.trim();
+  const desc = $('pa-desc').value.trim();
+  const contestId = $('pa-contest').value;
+  if (!title) { const e=$('pa-error'); e.textContent='Title is required.'; e.classList.remove('hidden'); return; }
+  const art = { id:uid(), title, img, desc, author:currentUser.username, authorId:currentUser.id, contestId, likes:[], comments:[], postedAt:Date.now() };
+  const artworks = DB.get('artworks')||[]; artworks.unshift(art); DB.set('artworks', artworks);
+  closeModal('post-art-overlay');
+  ['pa-title','pa-img','pa-desc'].forEach(id=>$(id).value='');
+  $('pa-error').classList.add('hidden');
+  renderGallery(); updateStats();
+  toast('🖼️ "'+title+'" posted!', 'success');
+  addNotif('🖼️ Your artwork "'+title+'" is now live in the gallery!');
+}
+
+function renderGallery() {
+  const artworks = DB.get('artworks')||[];
+  $('gallery-grid').innerHTML = artworks.length ? artworks.map(a=>artCardHTML(a)).join('') :
+    '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🖼️</div><p>No artwork posted yet.<br>Share your creation!</p></div>';
+}
+function artCardHTML(a) {
+  const liked = currentUser && (a.likes||[]).includes(currentUser.id);
+  return `<div class="art-card" onclick="openArtDetail('${a.id}')">
+    ${a.img ? `<img class="art-img" src="${a.img}" alt="${a.title}" onerror="this.parentElement.querySelector('.art-img-placeholder').style.display='flex';this.style.display='none'"/><div class="art-img-placeholder" style="display:none">🎨</div>` : `<div class="art-img-placeholder">🎨</div>`}
+    <div class="art-info">
+      <div class="art-title">${a.title}</div>
+      <div class="art-author">@${a.author} · ${timeAgo(a.postedAt)}</div>
+      <div class="art-actions" onclick="event.stopPropagation()">
+        <button class="like-btn${liked?' liked':''}" onclick="toggleLike('${a.id}')">❤️ ${(a.likes||[]).length}</button>
+        <button class="comment-btn" onclick="openArtDetail('${a.id}')">💬 ${(a.comments||[]).length}</button>
+        ${a.contestId?`<span class="badge badge-accent">🏆 Contest</span>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleLike(artId) {
+  if (!currentUser) { openAuth('login'); return; }
+  const artworks = DB.get('artworks')||[];
+  const a = artworks.find(x=>x.id===artId); if(!a) return;
+  if (!a.likes) a.likes=[];
+  const idx = a.likes.indexOf(currentUser.id);
+  if (idx>-1) a.likes.splice(idx,1);
+  else { a.likes.push(currentUser.id); if(a.authorId!==currentUser.id) { /* notify art owner */ } }
+  DB.set('artworks', artworks);
+  renderGallery();
+}
+
+function openArtDetail(artId) {
+  const artworks = DB.get('artworks')||[];
+  const a = artworks.find(x=>x.id===artId); if(!a) return;
+  const liked = currentUser && (a.likes||[]).includes(currentUser.id);
+  $('art-detail-content').innerHTML = `
+    ${a.img ? `<img class="art-detail-img" src="${a.img}" alt="${a.title}" onerror="this.style.display='none'"/>` : `<div class="art-detail-img-placeholder">🎨</div>`}
+    <div style="margin-top:1rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+      <div>
+        <h2 style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--text)">${a.title}</h2>
+        <p style="color:var(--muted);font-size:.82rem;margin-top:.2rem">@${a.author} · ${timeAgo(a.postedAt)}</p>
+        ${a.desc?`<p style="color:var(--text);font-size:.88rem;line-height:1.6;margin-top:.6rem">${a.desc}</p>`:''}
+      </div>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="like-btn${liked?' liked':''}" onclick="toggleLike('${a.id}');openArtDetail('${a.id}')">❤️ ${(a.likes||[]).length} Likes</button>
+        <button class="btn btn-ghost btn-sm" onclick="openDMWith('${a.author}')">💬 Message</button>
+      </div>
+    </div>
+    <div class="comments-section">
+      <h3 style="font-family:'Bebas Neue',sans-serif;letter-spacing:1px;margin-bottom:.8rem;font-size:1rem;margin-top:1rem">COMMENTS (${(a.comments||[]).length})</h3>
+      <div id="comments-list-${a.id}">${renderComments(a)}</div>
+      ${currentUser ? `
+        <div class="comment-input-row" style="margin-top:.8rem">
+          <div class="comment-avatar">${avatarLetter(currentUser.username)}</div>
+          <input placeholder="Add a comment…" id="comment-input-${a.id}" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.5rem .8rem;color:var(--text);font-family:inherit;font-size:.83rem;outline:none" onkeydown="if(event.key==='Enter')addComment('${a.id}')"/>
+          <button class="btn btn-primary btn-sm" onclick="addComment('${a.id}')">Post</button>
+        </div>` : `<p style="color:var(--muted);font-size:.82rem;margin-top:.8rem"><button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Login</button> to comment.</p>`}
+    </div>`;
+  openModal('art-detail-overlay');
+}
+
+function renderComments(a) {
+  if(!(a.comments||[]).length) return '<div class="empty-state" style="padding:1rem"><p>No comments yet. Be the first!</p></div>';
+  return a.comments.map(c=>`
+    <div class="comment">
+      <div class="comment-avatar">${avatarLetter(c.author)}</div>
+      <div class="comment-body">
+        <div class="comment-author">@${c.author}</div>
+        <div class="comment-text">${c.text}</div>
+      </div>
+    </div>`).join('');
+}
+
+function addComment(artId) {
+  if (!currentUser) { openAuth('login'); return; }
+  const inp = $('comment-input-'+artId);
+  const text = inp?.value?.trim(); if(!text) return;
+  const artworks = DB.get('artworks')||[];
+  const a = artworks.find(x=>x.id===artId); if(!a) return;
+  if (!a.comments) a.comments=[];
+  a.comments.push({ id:uid(), author:currentUser.username, text, ts:Date.now() });
+  DB.set('artworks', artworks);
+  inp.value='';
+  openArtDetail(artId);
+  addNotif('💬 @'+currentUser.username+' commented on "'+a.title+'"');
+}
+
+// ═══════════════════════════════════════
+//  WINNERS
+// ═══════════════════════════════════════
+function renderWinners() {
+  const contests = (DB.get('contests')||[]).filter(c=>c.winner);
+  const artworks = DB.get('artworks')||[];
+  if (!contests.length) {
+    $('winners-grid').innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏆</div><p>Contest winners will appear here.<br>Compete to win your spot!</p></div>';
+    return;
+  }
+  $('winners-grid').innerHTML = contests.map(c=>{
+    const art = artworks.find(a=>a.author===c.winner&&a.contestId===c.id);
+    return `<div class="winner-card">
+      ${art?.img ? `<img class="winner-art" src="${art.img}" alt="${art.title}" onerror="this.style.display='none'"/>` : `<div class="winner-art-placeholder">🏆</div>`}
+      <div class="winner-body">
+        <div class="trophy-wrap">🥇</div>
+        <div class="winner-info">
+          <span class="winner-name">@${c.winner}</span>
+          <span class="winner-cat">${c.tag} · ${c.title}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+//  CHAT
+// ═══════════════════════════════════════
+const DEFAULT_ROOMS = ['🌐 General', '🎨 Art Talk', '🏆 Contests', '🤝 Collabs'];
+let currentRoom = DEFAULT_ROOMS[0];
+
+function toggleChat() {
+  if (!currentUser) { openAuth('login'); toast('Login to join the chat!'); return; }
+  const box = $('chat-box'); box.classList.toggle('hidden');
+  if (!box.classList.contains('hidden')) { renderChatRooms(); renderChatMessages(); setTimeout(()=>$('chat-input').focus(),100); }
+}
+function renderChatRooms() {
+  $('chat-rooms').innerHTML = DEFAULT_ROOMS.map(r=>`
+    <button class="chat-room-btn${r===currentRoom?' active':''}" onclick="switchRoom('${r}')">${r}</button>`).join('');
+}
+function switchRoom(r) { currentRoom=r; renderChatRooms(); renderChatMessages(); }
+function renderChatMessages() {
+  const msgs = (DB.get('chat_messages')||{})[currentRoom]||[];
+  const el = $('chat-messages');
+  el.innerHTML = msgs.length ? msgs.map(m=>`
+    <div class="chat-msg${m.author===currentUser?.username?' me':''}">
+      <div class="chat-msg-author">${m.author===currentUser?.username?'You':'@'+m.author}</div>
+      <div class="chat-bubble">${m.text}</div>
+    </div>`).join('') : '<div style="text-align:center;color:var(--muted);font-size:.8rem;padding:1rem">No messages yet. Say hi! 👋</div>';
+  el.scrollTop = el.scrollHeight;
+}
+function sendChat() {
+  if (!currentUser) return;
+  const inp = $('chat-input');
+  const text = inp.value.trim(); if(!text) return;
+  const all = DB.get('chat_messages')||{};
+  if (!all[currentRoom]) all[currentRoom]=[];
+  all[currentRoom].push({ id:uid(), author:currentUser.username, text, ts:Date.now() });
+  // keep last 100 msgs per room
+  if (all[currentRoom].length>100) all[currentRoom]=all[currentRoom].slice(-100);
+  DB.set('chat_messages', all);
+  inp.value=''; renderChatMessages();
+}
+
+// ── DM / direct message ──
+function openDMWith(username) {
+  if (!currentUser) { openAuth('login'); return; }
+  closeModal('art-detail-overlay');
+  const room = '💌 '+[currentUser.username,username].sort().join(' & ');
+  if (!DEFAULT_ROOMS.includes(room)) DEFAULT_ROOMS.push(room);
+  currentRoom = room;
+  const box = $('chat-box'); box.classList.remove('hidden');
+  renderChatRooms(); renderChatMessages();
+  toast('💌 DM with @'+username+' opened!');
+}
+
+// ═══════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════
+function closeDropdowns() {
+  $('profile-dropdown').classList.add('hidden');
+  $('notif-panel').classList.add('hidden');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#profile-dropdown')&&!e.target.closest('#avatar-btn')) $('profile-dropdown')?.classList.add('hidden');
+  if (!e.target.closest('#notif-panel')&&!e.target.closest('#notif-btn')) $('notif-panel')?.classList.add('hidden');
+});
+
+// ═══════════════════════════════════════
+//  RENDER ALL
+// ═══════════════════════════════════════
+function renderAll() {
+  renderContests();
+  renderGallery();
+  renderWinners();
+  updateStats();
+}
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+renderNav();
+renderAll();
+
+// Re-render chat every 5s to pick up new messages (simulate real-time)
+setInterval(() => { if(!$('chat-box').classList.contains('hidden')) renderChatMessages(); }, 5000);
+</script>
+</body>
+</html>
